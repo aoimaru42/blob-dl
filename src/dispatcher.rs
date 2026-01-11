@@ -20,7 +20,7 @@ pub fn dispatch(cli_config: &parser::CliConfig) -> BlobResult<()> {
     // user_config is created with data from the config file. Once execution
     // reaches the point where questions need to be asked to the user, data which is already
     // present in user_config is used instead of being asked the user directly
-    let user_config = match cli_config.config_file_preference() {
+    let mut user_config = match cli_config.config_file_preference() {
         // There is no config file
         ConfigFilePreferences::NoConfig => youtube::config::DownloadConfig::empty(),
         // The config file is in blob-dl's default location
@@ -38,6 +38,31 @@ pub fn dispatch(cli_config: &parser::CliConfig) -> BlobResult<()> {
             youtube::config::DownloadConfig::empty()
         }
     };
+    
+    // Override with command line arguments if provided
+    if let Some(media_type_str) = &cli_config.media_type {
+        let media_selected = match media_type_str.as_str() {
+            "audio-only" => youtube::MediaSelection::AudioOnly,
+            "video-only" => youtube::MediaSelection::VideoOnly,
+            "full-video" => youtube::MediaSelection::FullVideo,
+            _ => return Err(BlobdlError::UnknownIssue),
+        };
+        user_config.media_selected = Some(media_selected);
+    }
+    
+    if let Some(format_str) = &cli_config.format {
+        let chosen_format = if format_str == "best" {
+            youtube::VideoQualityAndFormatPreferences::BestQuality
+        } else if format_str == "smallest" {
+            youtube::VideoQualityAndFormatPreferences::SmallestSize
+        } else if format_str.starts_with("convert:") {
+            let format_name = format_str.strip_prefix("convert:").unwrap_or("mp3").to_string();
+            youtube::VideoQualityAndFormatPreferences::ConvertTo(format_name)
+        } else {
+            return Err(BlobdlError::UnknownIssue);
+        };
+        user_config.chosen_format = Some(chosen_format);
+    }
     
     // Parse what the url refers to
     let download_option = analyzer::analyze_url(cli_config.url())?;

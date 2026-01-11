@@ -56,6 +56,19 @@ pub fn parse_config() -> BlobResult<CliConfig> {
                 .required(false)
                 .value_parser(value_parser!(PathBuf)),
         )
+        .arg(
+            arg!(
+                -m --"media-type" <TYPE> "Media type: 'audio-only', 'video-only', or 'full-video' (default: 'audio-only')"
+            )
+                .required(false)
+                .value_parser(["audio-only", "video-only", "full-video"]),
+        )
+        .arg(
+            arg!(
+                -f --"format" <FORMAT> "Format: 'best', 'smallest', or 'convert:<format>' (default: 'best')"
+            )
+                .required(false),
+        )
         .arg(Arg::new("URL")
             .help("Link to the youtube video/playlist that you want to download")
         )
@@ -94,6 +107,8 @@ pub struct CliConfig {
     show_command: bool,
 
     pub config_file_preference: ConfigFilePreferences,
+    pub media_type: Option<String>,
+    pub format: Option<String>,
 }
 
 impl CliConfig {
@@ -129,11 +144,16 @@ impl CliConfig {
             config_file_preference = ConfigFilePreferences::DefaultConfig;
         }
 
+        let media_type = matches.get_one::<String>("media-type").map(|s| s.clone());
+        let format = matches.get_one::<String>("format").map(|s| s.clone());
+
         Ok(CliConfig {
             url,
             verbosity,
             show_command,
-            config_file_preference
+            config_file_preference,
+            media_type,
+            format,
         })
     }
 

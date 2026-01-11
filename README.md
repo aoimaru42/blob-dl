@@ -15,108 +15,108 @@
 
 <h1 align="center">blob-dl</h1>
 
+> **Note:** このリポジトリは [MicheleCioccarelli/blob-dl](https://github.com/MicheleCioccarelli/blob-dl) のフォークです。
 
-`blob-dl` is a command line tool used to download video and audio files from YouTube. It acts as an interface to [`yt-dlp`](https://github.com/yt-dlp/yt-dlp) and works by asking a series of questions that make it generate and then execute a `yt-dlp` command that fits your needs.
+`blob-dl` は、YouTubeから動画や音声ファイルをダウンロードするためのコマンドラインツールです。[`yt-dlp`](https://github.com/yt-dlp/yt-dlp) へのインターフェースとして機能し、一連の質問を通じて、あなたのニーズに合った `yt-dlp` コマンドを生成し、実行します。
 
-The idea behind this program is to remove all the tedious work of researching which flags you need to pass to `yt-dlp` to make it do what you want.
-When you use blob-dl you only need to know the url of what you want to download, and it'll figure out the rest.
+このプログラムの目的は、`yt-dlp` に希望の動作をさせるために必要なフラグを調べるという面倒な作業をなくすことです。
+`blob-dl` を使用する際は、ダウンロードしたいURLさえ知っていれば十分で、残りは自動的に処理されます。
 
-- See the [Features](#Features) section for more details on what `blob-dl` can do
+- 詳細については、[機能](#機能) セクションを参照してください
 
 [![asciicast](https://asciinema.org/a/jZUokSc5oDms6vICdNTic1vxh.svg)](https://asciinema.org/a/jZUokSc5oDms6vICdNTic1vxh)
 
 
-# Installation
-The most straightforward way to install `blob-dl` is to use [the binaries](https://github.com/MicheleCioccarelli/blob-dl/releases/)
+# インストール
+`blob-dl` をインストールする最も簡単な方法は、[バイナリファイル](https://github.com/MicheleCioccarelli/blob-dl/releases/) を使用することです
 
-Alternatively, if you are a Rust programmer you can install `blob-dl` with `cargo`
+あるいは、Rustプログラマーの場合は、`cargo` を使用して `blob-dl` をインストールできます
 
 ```
 $ cargo install blob-dl
 ```
-## Dependencies
-`blob-dl` depends on `yt-dlp`, you can install it by following the official [guide](https://github.com/yt-dlp/yt-dlp#installation).
+## 依存関係
+`blob-dl` は `yt-dlp` に依存しています。公式の[ガイド](https://github.com/yt-dlp/yt-dlp#installation)に従ってインストールしてください。
 
-You should also install `yt-dlp`'s [recommended dependencies](https://github.com/yt-dlp/yt-dlp#dependencies) to access all of `blob-dl`'s features (namely `ffmpeg` and `ffprobe`).
+`blob-dl` のすべての機能にアクセスするには、`yt-dlp` の[推奨依存関係](https://github.com/yt-dlp/yt-dlp#dependencies)（特に `ffmpeg` と `ffprobe`）もインストールすることをお勧めします。
 
-# Usage
-To use `blob-dl` you just have to pass it the url of the video or playlist that you want to download, the program will understand by itself what the link refers to and ask you questions accordingly.
+# 使用方法
+`blob-dl` を使用するには、ダウンロードしたい動画やプレイリストのURLを渡すだけで、プログラムが自動的にリンクの種類を判別し、それに応じて質問します。
 
-The first one is `What kind of file(s) do you want to download?`
+最初の質問は `ダウンロードしたいファイルの種類は何ですか？` です
 
-The answer you choose determines which download formats you can pick later on: For example, if you answer that you want to download audio-only files, then formats containing video will be hidden. In this readme, statements about downloading `video`s also apply to audio-only downloads
+選択した答えによって、後で選択できるダウンロード形式が決まります：例えば、音声のみのファイルをダウンロードしたいと答えた場合、動画を含む形式は非表示になります。このREADMEでは、`動画`のダウンロードに関する記述は、音声のみのダウンロードにも適用されます
 
-The second question `Which quality or format do you want to apply to the video?` allows you to choose a specific format, quality, filesize, ...  
+2番目の質問 `動画に適用する品質や形式はどれですか？` では、特定の形式、品質、ファイルサイズなどを選択できます。
 
-The available answers mean these things:
+利用可能な回答の意味：
 
-- `Best possible quality` tells yt-dlp to automatically choose the `best` quality, for more information see `yt-dlp`'s [wiki](https://github.com/yt-dlp/yt-dlp#format-selection)
+- `最良の品質` は、yt-dlpに自動的に `最良` の品質を選択するように指示します。詳細については、`yt-dlp` の[Wiki](https://github.com/yt-dlp/yt-dlp#format-selection)を参照してください
 
-- `Smallest file size` uses the format which results in the smallest file size
+- `最小のファイルサイズ` は、最小のファイルサイズになる形式を使用します
 
-- `Choose a format to recode the video to` is only available if ffmpeg is installed: After the video is downloaded, it can be converted to a file format of your choosing
+- `動画を再エンコードする形式を選択` は、ffmpegがインストールされている場合のみ利用可能です：動画をダウンロードした後、選択したファイル形式に変換できます
 
-- `Choose a format to download the video in` doesn't require ffmpeg: it shows a list of formats directly available for download from YouTube without needing to convert anything, but the choice is rather limited
+- `動画をダウンロードする形式を選択` はffmpegを必要としません：変換することなくYouTubeから直接ダウンロード可能な形式のリストを表示しますが、選択肢は限られています
 
 
-`blob-dl` will also ask other questions, but they are self-explanatory
+`blob-dl` は他の質問もしますが、それらは自明です
 
-# Features
+# 機能
 
-### Format conversion
-`blob-dl` was designed to download large song playlists directly as audio files. Choosing between downloading audio files, normal video files or video-only files is very easy
+### 形式変換
+`blob-dl` は、大きな楽曲プレイリストを直接音声ファイルとしてダウンロードするように設計されています。音声ファイル、通常の動画ファイル、または動画のみのファイルのどれをダウンロードするかを選択するのは非常に簡単です
 
-### Playlist Download
-With `blob-dl` you can download whole playlists in one go, you can also choose a single file format to apply to all videos
+### プレイリストのダウンロード
+`blob-dl` を使用すると、プレイリスト全体を一度にダウンロードでき、すべての動画に適用する単一のファイル形式を選択することもできます
 
-### Error tracking
+### エラー追跡
 
-While downloading, `blob-dl` keeps track of any errors thrown by yt-dlp and reports them at the end, the ones caused which can be resolved by re-trying the download can be easily re-downloaded
+ダウンロード中、`blob-dl` はyt-dlpによってスローされたエラーを追跡し、最後にレポートします。再試行することで解決できるエラーは、簡単に再ダウンロードできます
 
-## Configuration files
-If you find yourself downloading videos using the same settings often and always answering the same questions has
-started to annoy you it's time to use a config file!
+## 設定ファイル
+同じ設定を使用して頻繁に動画をダウンロードしていて、常に同じ質問に答えることにうんざりしている場合は、設定ファイルを使用する時です！
 
-It makes blob-dl already know what you want so it can avoid asking too many questions.
+設定ファイルにより、`blob-dl` があなたの希望を既に知っているため、多くの質問を避けることができます。
 
-### How to create a config file
-Creating a new config file is a straight-forward process: just use the `-g` flag and blob-dl will generate a config file with your answers in its default location
+### 設定ファイルの作成方法
+新しい設定ファイルの作成は簡単なプロセスです：`-g` フラグを使用するだけで、`blob-dl` がデフォルトの場所にあなたの回答を含む設定ファイルを生成します
 ```
 $ blob-dl -g "youtube url"
 ```
-Note that using `-g` multiple times will overwrite old config files: there will only be one at a time in the default location
+`-g` を複数回使用すると、古い設定ファイルが上書きされることに注意してください：デフォルトの場所には一度に1つだけ存在します
 
 
 
-####  Default Config File Location
+####  デフォルトの設定ファイルの場所
 
-|    OS     |                                Config Path                                |
+|    OS     |                                設定パス                                |
 |:---------:|:-------------------------------------------------------------------------:|
-| **Linux** | `~/.config/blob-dl/config.json` or <br/> `$XDG_CONFIG_HOME/blob-dl/config.json`|
+| **Linux** | `~/.config/blob-dl/config.json` または <br/> `$XDG_CONFIG_HOME/blob-dl/config.json`|
 | **macOS** |            `~/Library/Application Support/blob-dl/config.json`            |
 | **Windows** |                      `%APPDATA%\blob-dl\config.json`                      |
 
-#### Notes:
-- On **Linux**, if `$XDG_CONFIG_HOME` is not set, it defaults to `~/.config`.
-- On **macOS**, `~/Library` is typically hidden. Use `Cmd + Shift + .` in Finder to reveal hidden folders.
-- On **Windows**, `%APPDATA%` usually resolves to `C:\Users\YourName\AppData\Roaming`.
+#### 注意事項：
+- **Linux** では、`$XDG_CONFIG_HOME` が設定されていない場合、デフォルトは `~/.config` です。
+- **macOS** では、`~/Library` は通常非表示になっています。Finderで `Cmd + Shift + .` を使用して隠しフォルダを表示できます。
+- **Windows** では、`%APPDATA%` は通常 `C:\Users\YourName\AppData\Roaming` に解決されます。
 
-### Usage
+### 使用方法
 
-Use `-c` or `--use-config` to use the config file present in blob-dl's default location
+`-c` または `--use-config` を使用して、`blob-dl` のデフォルトの場所にある設定ファイルを使用します
 ```
 $ blob-dl -c "youtube url"
 ```
-If you've moved your config file somewhere else you should use `-l "filepath"`
+設定ファイルを別の場所に移動した場合は、`-l "filepath"` を使用する必要があります
 ```
 $ blob-dl -l "/Users/YourName/Desktop/config.json" "youtube url"
 ```
 
-### How to edit your config file
-A blob-dl config file looks something like this:
+### 設定ファイルの編集方法
+`blob-dl` の設定ファイルは次のようになります：
 
 
-filename: `config.json`
+ファイル名: `config.json`
 ```
 {
     "url": null,
@@ -127,48 +127,48 @@ filename: `config.json`
     "download_target": "YtPlaylist"
 }
 ```
-Each of these fields can be set to null. If that is the case blob-dl will ask you a question related to what you've left out
+これらの各フィールドは null に設定できます。その場合、`blob-dl` はあなたが空白にした部分に関連する質問をします
 
-`url` is ignored by blob-dl, so you can leave this always null
+`url` は `blob-dl` によって無視されるため、常に null のままにできます
 
-`output_path` is where the files you are downloading will end up, it should be path
+`output_path` は、ダウンロードするファイルが保存される場所で、パスを指定する必要があります
 
-`include_indexes` is a boolean value: when you are downloading a playlist you can have a video's position in the playlist as a part of its filename (e.g. 1_firstvideo, 2_secondvideo, ... )
+`include_indexes` はブール値です：プレイリストをダウンロードする際、ファイル名の一部としてプレイリスト内の動画の位置を含めることができます（例：1_firstvideo、2_secondvideo、...）
 
-`chosen_format` is what format you want your files to be in. It has a few options: 
+`chosen_format` は、ファイルの形式です。いくつかのオプションがあります：
 
-|        Option         |                                                                                                         What it does                                                                                                         |
+|        オプション         |                                                                                                         機能                                                                                                         |
 |:---------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|    **BestQuality**    |                                                                           blob-dl will download your video/audio in the highest quality available                                                                            |
-|   **SmallestSize**    |                                                                         blob-dl will download your video/audio using the smallest filesize available                                                                         |
-| **ConvertTo(format)** |                                                            After downloading your video/audio blob-dl will use ffmpeg to convert it to a format of your choosing                                                             |
-| **UniqueFormat(id)**  | This is not supposed to be edited by end users: each possible format has a numerical id. The problem is that it is unlikely for a specific format to be available for multiple videos, making it a bad fit for a config file |
+|    **BestQuality**    |                                                                            `blob-dl` は利用可能な最高品質で動画/音声をダウンロードします                                                                            |
+|   **SmallestSize**    |                                                                          `blob-dl` は利用可能な最小ファイルサイズで動画/音声をダウンロードします                                                                         |
+| **ConvertTo(format)** |                                                            動画/音声をダウンロードした後、`blob-dl` はffmpegを使用して選択した形式に変換します                                                             |
+| **UniqueFormat(id)**  | これはエンドユーザーが編集することを想定していません：各可能な形式には数値IDがあります。問題は、特定の形式が複数の動画で利用可能である可能性が低いため、設定ファイルには適していないことです |
 
-Syntax for using ConvertTo(format):
+ConvertTo(format) の使用構文：
 ```
   "chosen_format": {
     "ConvertTo": "mp4"
   },
 ```
-This feature supports all the formats that ffmpeg does: `mp4, mkv, mov, avi, flv, gif, webm, aac, aiff, alac, flac, m4a, mka, mp3, ogg, opus, vorbis, wav`
+この機能は、ffmpegがサポートするすべての形式をサポートしています：`mp4, mkv, mov, avi, flv, gif, webm, aac, aiff, alac, flac, m4a, mka, mp3, ogg, opus, vorbis, wav`
 
-`media_selection` refers to whether you want to download a normal video, audio only or video only.
-It expects a string and the available options are: `FullVideo` `AudioOnly` `VideoOnly` 
+`media_selection` は、通常の動画、音声のみ、または動画のみをダウンロードするかどうかを指します。
+文字列を想定し、利用可能なオプションは：`FullVideo` `AudioOnly` `VideoOnly` 
 
-`download_target` is whether you are downloading a single video or a full playlist.
-It expects a string, the options are `YtPlaylist` (which should be used in most circumstances, even when downloading a normal video) and  `YtVideo(index)` which is only needed when you are downloading a single video from a playlist, needing to specify its index in it.
+`download_target` は、単一の動画をダウンロードするか、プレイリスト全体をダウンロードするかです。
+文字列を想定し、オプションは `YtPlaylist`（通常の動画をダウンロードする場合でも、ほとんどの場合に使用されるべき）と `YtVideo(index)`（プレイリストから単一の動画をダウンロードする場合のみ必要で、プレイリスト内のインデックスを指定する必要があります）です
 
 # Q&A
-### Who is this for?
-This program is intended for anyone who wants to download things from YouTube without having to remember yt-dlp's syntax. `blob-dl` can do everything an average user needs but with less hassle
+### 誰のためのものですか？
+このプログラムは、`yt-dlp` の構文を覚えることなく、YouTubeからコンテンツをダウンロードしたい人のためのものです。`blob-dl` は、平均的なユーザーが必要とするすべてのことを、より簡単に実行できます
 
-`yt-dlp` power users with advanced needs probably won't find this program useful.
+高度なニーズを持つ `yt-dlp` パワーユーザーは、このプログラムを有用だと感じないでしょう。
 
-### Why did I make this?
-Have you ever had to download videos from YouTube? 
-The process can be quite a pain because you will have to either spend your time closing pop-ups from a sketchy website or browsing through [`yt-dlp`](https://github.com/yt-dlp/yt-dlp)'s documentation.
+### なぜこれを作ったのか？
+YouTubeから動画をダウンロードする必要があったことはありますか？
+プロセスは非常に面倒な場合があります。怪しげな Web サイトからのポップアップを閉じるのに時間を費やすか、[`yt-dlp`](https://github.com/yt-dlp/yt-dlp) のドキュメントを閲覧する必要があるためです。
 
-I was tired of spending hours downloading music videos and converting them to audio, so I wrote this program to make everything way easier
+音楽動画をダウンロードして音声に変換するのに何時間も費やすことにうんざりしていたので、すべてをより簡単にするためにこのプログラムを書きました
 
-## Notes
-This logo was inspired by [@Primer](https://www.youtube.com/c/PrimerLearning)'s [blob plushie](https://store.dftba.com/collections/primer/products/primer-blob-plushie)
+## 注記
+このロゴは [@Primer](https://www.youtube.com/c/PrimerLearning) の[blob plushie](https://store.dftba.com/collections/primer/products/primer-blob-plushie) にインスパイアされました

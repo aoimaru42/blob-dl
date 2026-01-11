@@ -27,8 +27,8 @@ pub(crate) fn assemble_data(url: &str, user_config: youtube::config::DownloadCon
         // if a media selection was already present in the config file, use that
         media_selected = media;
     } else {
-        // Whether the user wants to download video files or audio-only
-        media_selected = get_media_selection(&term)?;
+        // Default to audio-only for MCP usage (non-interactive)
+        media_selected = youtube::MediaSelection::AudioOnly;
     }
 
     let chosen_format;
@@ -36,9 +36,10 @@ pub(crate) fn assemble_data(url: &str, user_config: youtube::config::DownloadCon
         // With config files it is possible to "force" blob-dl to try to use ffmpeg
         if let VideoQualityAndFormatPreferences::ConvertTo(_) = format {
             // The user wants their files to be converted to another format
-            if !which("ffmpeg").is_ok() {
+            if which("ffmpeg").is_err() {
                 // The conversion cannot be performed because ffmpeg is not installed
-                chosen_format = format::get_format(&term, url, &media_selected)?;
+                // Default to best quality for MCP usage
+                chosen_format = VideoQualityAndFormatPreferences::BestQuality;
             } else {
                 // ffmpeg is installed so what was specified in the config file can be used
                 chosen_format = format;
@@ -47,8 +48,13 @@ pub(crate) fn assemble_data(url: &str, user_config: youtube::config::DownloadCon
             chosen_format = format;
         }
     } else {
-        // Config file didn't say anything about file formats
-        chosen_format = format::get_format(&term, url, &media_selected)?;
+        // Default to mp3 conversion for better compatibility (MCP usage, non-interactive)
+        if which("ffmpeg").is_ok() {
+            chosen_format = VideoQualityAndFormatPreferences::ConvertTo("mp3".to_string());
+        } else {
+            // Fallback to best quality if ffmpeg is not available
+            chosen_format = VideoQualityAndFormatPreferences::BestQuality;
+        }
     }
 
     let output_path;

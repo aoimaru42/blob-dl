@@ -1,6 +1,4 @@
 use url::Url;
-use dialoguer::console::Term;
-use dialoguer::{theme::ColorfulTheme, Select};
 use serde::{Deserialize, Serialize};
 use crate::error::{BlobdlError, BlobResult};
 
@@ -38,43 +36,32 @@ fn inspect_yt_url(yt_url: Url) -> BlobResult<DownloadOption> {
         // example: https://www.youtube.com/watch?v=GNxZ_izoC8I&list=PLl-vhnGPY7cqQ0b_NXy1qyMVsA9LHiPmv
         // maybe support for this will be added in the future
         if query.contains("&index="){
-            // This video is part of a youtube playlist
-            let term = Term::buffered_stderr();
+            // This video is part of a youtube playlist, but for MCP usage we default to single video
+            // Calculate the index and treat as single video
+            let index = if let Some(index_location) = query.find("&index=") {
+                let slice = &query[index_location + "&index=".len() ..];
 
-            // Ask the user whether they want to download the whole playlist or just the video
-            let user_selection = Select::with_theme(&ColorfulTheme::default())
-                .with_prompt("The url refers to a video in a playlist, which do you want to download?")
-                .default(0)
-                .items(&["Only the video", "The whole playlist"])
-                .interact_on(&term)?;
-
-            return match user_selection {
-                0 => {
-                    // If only this video needs to be downloaded, calculate its index
-                    let index = if let Some(index_location) = query.find("&index=") {
-                        let slice = &query[index_location + "&index=".len() ..];
-
-                        if let Some(second_ampersand_location) = slice.find('&') {
-                            // There are url parameters after &index=..
-                             &slice[..second_ampersand_location]
-                        } else {
-                            slice
-                        }
-                    } else {
-                        return Err(BlobdlError::PlaylistUrlError);
-                    };
-
-                    if let Ok(parsed) = index.parse() {
-                        Ok(DownloadOption::YtVideo(parsed))
-                    } else {
-                        Err(BlobdlError::UrlIndexParsingError)
-                    }
+                if let Some(second_ampersand_location) = slice.find('&') {
+                    // There are url parameters after &index=..
+                     &slice[..second_ampersand_location]
+                } else {
+                    slice
                 }
-
-                _ => Ok(DownloadOption::YtPlaylist),
+            } else {
+                return Err(BlobdlError::PlaylistUrlError);
             };
+
+            if let Ok(parsed) = index.parse() {
+                return Ok(DownloadOption::YtVideo(parsed));
+            } else {
+                return Err(BlobdlError::UrlIndexParsingError);
+            }
         }
-        if yt_url.path().contains("playlist") || query.contains("list"){
+        
+        // Only treat as playlist if the path explicitly contains "playlist"
+        // URLs with "list=" parameter but "v=" parameter should be treated as single video
+        // This is useful for MCP usage where interactive prompts are not desired
+        if yt_url.path().contains("playlist") {
             return Ok(DownloadOption::YtPlaylist);
         }
 
